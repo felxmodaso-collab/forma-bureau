@@ -1,0 +1,280 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --grain-opacity: 0.045;
+  --page-margin: clamp(2.5vh, 4vh, 5.2vh);
+}
+
+html,
+body {
+  background: #1a1a1f;
+  color: #e8dcc4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 300;
+  font-feature-settings: 'ss01', 'ss02', 'kern';
+  letter-spacing: -0.005em;
+}
+
+::selection {
+  background: #c8a878;
+  color: #1a1a1f;
+}
+
+/* Paper grain overlay — twin-layer tactile feel */
+.paper-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: var(--grain-opacity);
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='4'/><feColorMatrix values='0 0 0 0 0.91 0 0 0 0 0.86 0 0 0 0 0.77 0 0 0 0.85 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='500' height='500'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.18' numOctaves='1' stitchTiles='stitch' seed='9'/><feColorMatrix values='0 0 0 0 0.08 0 0 0 0 0.08 0 0 0 0 0.09 0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23f)'/></svg>");
+  background-size: 240px 240px, 500px 500px;
+  mix-blend-mode: overlay;
+}
+
+/* Page-edge vignette — corners of the paper, darkened like an archival photo */
+.paper-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 55;
+  background: radial-gradient(
+    120% 90% at 50% 50%,
+    transparent 55%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
+}
+
+/* Ink-press display type.
+   Two layers: an amber shadow (blurred + ink-bleed filter, per-letter alpha
+   jitter) sits 6px/6px behind a paper layer with a subtle displacement
+   filter. Layers isolate so z-index:-1 stays within the box. */
+.inked {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+  line-height: inherit;
+  white-space: pre-line;
+}
+
+.inked-main {
+  position: relative;
+  z-index: 1;
+  display: block;
+  color: #e8dcc4;
+  opacity: 0;
+  filter: url(#paper-ink);
+  transition: opacity 900ms cubic-bezier(0.65, 0, 0.35, 1) 420ms;
+  white-space: inherit;
+  letter-spacing: inherit;
+}
+
+.inked-shadow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  color: #c8a878;
+  pointer-events: none;
+  transform: translate(6px, 6px);
+  filter: url(#ink-bleed) blur(0.7px);
+  opacity: 0;
+  transition: opacity 1400ms cubic-bezier(0.65, 0, 0.35, 1) 150ms;
+  white-space: inherit;
+  letter-spacing: inherit;
+}
+
+.inked.pressed .inked-main {
+  opacity: 1;
+}
+
+.inked.pressed .inked-shadow {
+  opacity: 0.82;
+}
+
+/* Handwritten annotations — outline draws first, fill settles after.
+   Both layers live in the same SVG; we animate stroke-dashoffset for the
+   outline and fill-opacity for the graphite layer. Together they read as
+   "pencil contour, then graphite settling". */
+.pencil {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.pencil-outline {
+  transition: stroke-dashoffset 2400ms cubic-bezier(0.3, 0.1, 0.25, 1) 100ms;
+}
+
+.pencil-fill {
+  opacity: 0;
+  transition: opacity 900ms cubic-bezier(0.65, 0, 0.35, 1) 1100ms;
+}
+
+.pencil-shown .pencil-fill {
+  opacity: 1;
+}
+
+.pencil-line {
+  display: block;
+  margin-top: -4px;
+}
+
+.pencil-line path {
+  transition: stroke-dashoffset 1600ms cubic-bezier(0.3, 0.1, 0.25, 1) 900ms;
+}
+
+/* Dossier — the paged container. Transforms between spreads are JS-driven. */
+.dossier-stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  perspective: 1800px;
+}
+
+.dossier-sheet {
+  position: absolute;
+  inset: 0;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Hold-prompt pulse — on the micro copy AND the thin amber line above it */
+@keyframes hold-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
+
+@keyframes line-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Calendar open-slot pulse — "открыт" cells breathe at 0.85 → 1.0, 3s cycle */
+@keyframes slot-pulse {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.slot-open {
+  animation: slot-pulse 3s ease-in-out infinite;
+}
+
+.hold-pulse {
+  animation: hold-pulse 3s ease-in-out infinite;
+}
+
+.line-pulse {
+  animation: line-pulse 3s ease-in-out infinite;
+}
+
+/* Open-slot pulse for the calendar table */
+@keyframes slot-pulse {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.slot-open {
+  animation: slot-pulse 3s ease-in-out infinite;
+}
+
+/* Horizontal fine rule — amber */
+.rule-amber {
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: #c8a878;
+  opacity: 0.65;
+}
+
+/* A discrete link (the "quiet CTA") — underlined taupe that shifts to amber on hover */
+.quiet-link {
+  color: #a8978f;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(168, 151, 143, 0.55);
+  padding-bottom: 2px;
+  transition: color 700ms ease, border-color 700ms ease;
+  cursor: pointer;
+}
+
+.quiet-link:hover {
+  color: #c8a878;
+  border-bottom-color: #c8a878;
+}
+
+/* Reduced-motion static layout — spreads stacked, native browser scroll */
+.dossier-static {
+  display: block;
+  width: 100%;
+}
+
+.dossier-static-sheet {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  border-bottom: 1px solid rgba(232, 220, 196, 0.06);
+}
+
+.dossier-static-sheet:last-child {
+  border-bottom: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hold-pulse,
+  .line-pulse,
+  .slot-open {
+    animation: none;
+  }
+  .inked-main,
+  .inked-shadow {
+    transition: none;
+  }
+  .pencil-text-wrap {
+    clip-path: none !important;
+    -webkit-clip-path: none !important;
+    transition: none !important;
+  }
+  .pencil-line path {
+    stroke-dashoffset: 0 !important;
+    transition: none !important;
+  }
+  html,
+  body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    touch-action: auto;
+    overscroll-behavior: auto;
+  }
+}

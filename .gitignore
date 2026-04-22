@@ -1,0 +1,17 @@
+node_modules
+.next
+out
+*.tsbuildinfo
+.env.local
+.env.*.local
+
+# playwright & ad-hoc test artifacts
+screenshots/live-*
+screenshots/interact-*
+screenshots/gemini-live*
+screenshots/mouse-drag-result.png
+screenshots/shoot.js.bak
+
+# misc
+.DS_Store
+*.log

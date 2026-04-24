@@ -468,3 +468,12 @@ section[data-index="3"] [class*="border-b"][class*="paper"] {
   scroll-snap-align: none !important;
   scroll-snap-stop: normal !important;
 }
+
+/* ============= SPREAD 4: ETAP label spacing =============
+   The "ЭТАП · NN / duration" label sits inside each phase figure
+   with `mt-4` (16px) gap from the photo frame. That's too tight —
+   the label visually kisses the bottom edge of the paper mat.
+   Push it down so the label reads as a separate caption line. */
+section[data-index="4"] article figure .mt-4[class*="text-amber"][class*="uppercase"] {
+  margin-top: clamp(32px, 4vh, 56px) !important;
+}

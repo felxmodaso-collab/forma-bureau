@@ -1,0 +1,132 @@
+/* ==== Animation overlays injected on top of the v20 static build ==== */
+
+/* Hide the original simple villa container (opacity 0) without removing it,
+   so removing this file or failing JS instantly restores original. */
+.forma-inject-hide-original {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Host for the new Palladian villa */
+.forma-inject-villa {
+  position: absolute;
+  top: 12vh;
+  left: 10vw;
+  right: 24vw;
+  height: 38vh;
+  opacity: 0.24;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Host for the drafted title — sits exactly where the old .inked block is */
+.forma-inject-title {
+  position: absolute;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ---- Palladian villa draw-in sequence (same as original component) ---- */
+.forma-inject-villa svg path,
+.forma-inject-villa svg line,
+.forma-inject-villa svg circle {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 360ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.forma-inject-villa svg text {
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.forma-inject-villa.drawing .seq-1 * {
+  stroke-dashoffset: 0;
+  transition-delay: 0ms;
+}
+.forma-inject-villa.drawing .seq-2 * {
+  stroke-dashoffset: 0;
+  transition-delay: 110ms;
+}
+.forma-inject-villa.drawing .seq-3 * {
+  stroke-dashoffset: 0;
+  transition-delay: 230ms;
+}
+.forma-inject-villa.drawing .seq-4 * {
+  stroke-dashoffset: 0;
+  transition-delay: 350ms;
+  transition-duration: 380ms;
+}
+.forma-inject-villa.drawing .seq-5 * {
+  stroke-dashoffset: 0;
+  transition-delay: 470ms;
+  transition-duration: 420ms;
+}
+.forma-inject-villa.drawing .seq-6 * {
+  stroke-dashoffset: 0;
+  transition-delay: 590ms;
+}
+.forma-inject-villa.drawing .seq-7 * {
+  stroke-dashoffset: 0;
+  transition-delay: 710ms;
+  transition-duration: 340ms;
+}
+.forma-inject-villa.drawing .seq-8 * {
+  stroke-dashoffset: 0;
+  transition-delay: 830ms;
+  transition-duration: 340ms;
+}
+.forma-inject-villa.drawing .seq-9 * {
+  stroke-dashoffset: 0;
+  transition-delay: 950ms;
+  transition-duration: 320ms;
+}
+.forma-inject-villa.drawing .seq-10 * {
+  stroke-dashoffset: 0;
+  transition-delay: 1070ms;
+  transition-duration: 300ms;
+}
+.forma-inject-villa.drawing .seq-10 text {
+  opacity: 1;
+  transition-delay: 1300ms;
+}
+
+/* ---- Spread 3: 4 project elevations draw-in when spread is active ---- */
+.forma-inject-spread3 path,
+.forma-inject-spread3 line,
+.forma-inject-spread3 polyline,
+.forma-inject-spread3 rect,
+.forma-inject-spread3 polygon,
+.forma-inject-spread3 circle {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 520ms cubic-bezier(0.3, 0, 0.25, 1);
+}
+.forma-inject-spread3.drawing path,
+.forma-inject-spread3.drawing line,
+.forma-inject-spread3.drawing polyline,
+.forma-inject-spread3.drawing rect,
+.forma-inject-spread3.drawing polygon,
+.forma-inject-spread3.drawing circle {
+  stroke-dashoffset: 0;
+}
+
+/* ---- Drafted title strokes ---- */
+.forma-inject-title svg path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 140ms cubic-bezier(0.35, 0, 0.3, 1);
+}
+.forma-inject-title.drawing svg path {
+  stroke-dashoffset: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forma-inject-villa svg * ,
+  .forma-inject-title svg path,
+  .forma-inject-spread3 * {
+    stroke-dashoffset: 0 !important;
+    transition: none !important;
+  }
+  .forma-inject-villa svg text { opacity: 1 !important; }
+}

@@ -1,5 +1,16 @@
 /* ==== Animation overlays injected on top of the v20 static build ==== */
 
+/* Spread 0: the lock halo (amber radial glow behind the lock icon) was
+   clipped at the bottom of its SVG viewBox because SVG roots default to
+   overflow:hidden. Let the blur extend beyond its own box. Also give the
+   parent container a little room so the glow has somewhere to breathe. */
+.dossier-sheet[data-index="0"] svg[viewBox="0 0 460 320"] {
+  overflow: visible;
+}
+.dossier-sheet[data-index="0"] svg[viewBox="0 0 460 320"] > * {
+  overflow: visible;
+}
+
 /* Hide the original simple villa container (opacity 0) without removing it,
    so removing this file or failing JS instantly restores original. */
 .forma-inject-hide-original {
